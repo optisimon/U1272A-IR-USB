@@ -38,15 +38,29 @@ print('# Measurement source: %s\n'% idn)
 print('Counter\tTimestamp\tReading\tRange setting\tSecondary reading\tSecondary range')
 
 n=0
+samples_per_second = 4
 while True:
+	now = datetime.now()
+
 	reading1 = send_receive('READ?')
 	reading2 = send_receive('FETC? @2')
 	conf1 = send_receive('CONF?')
 	conf2 = send_receive('CONF? @2')
 
-	now = datetime.now();
 	usecs = now.microsecond
 	timestring = now.strftime("%Y-%m-%d %H:%M:%S") + '.%03d' % (usecs/1000)
 
 	print('%d\t%s\t%s\t%s\t%s\t%s'% (n, timestring, reading1, conf1, reading2, conf2))
 	n += 1
+
+
+	# Rate limit sampling by sleeping to achieve the samplerate samples_per_second
+	now_post_read = datetime.now()
+	delta = now_post_read - now;
+
+	delta_microseconds = delta.microseconds + 1000000*delta.seconds
+
+	target_delta_microseconds = 1000000/float(samples_per_second)
+
+	if target_delta_microseconds > delta_microseconds:
+		time.sleep((target_delta_microseconds - delta_microseconds)*0.000001)
