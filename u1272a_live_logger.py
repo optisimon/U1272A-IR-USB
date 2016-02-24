@@ -35,16 +35,18 @@ def send_receive(command):
 
 idn = send_receive('*IDN?')
 print('# Measurement source: %s\n'% idn)
-print('Counter\tTimestamp\tReading\tRange setting')
+print('Counter\tTimestamp\tReading\tRange setting\tSecondary reading\tSecondary range')
 
 n=0
 while True:
-	reading = send_receive('READ?')
-	conf = send_receive('CONF?')
+	reading1 = send_receive('READ?')
+	reading2 = send_receive('FETC? @2')
+	conf1 = send_receive('CONF?')
+	conf2 = send_receive('CONF? @2')
 
 	now = datetime.now();
 	usecs = now.microsecond
 	timestring = now.strftime("%Y-%m-%d %H:%M:%S") + '.%03d' % (usecs/1000)
 
-	print('%d\t%s\t%s\t%s'% (n, timestring, reading, conf))
+	print('%d\t%s\t%s\t%s\t%s\t%s'% (n, timestring, reading1, conf1, reading2, conf2))
 	n += 1
