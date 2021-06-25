@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-
-from __future__ import print_function
+#!/usr/bin/env python3
 
 import serial
 import sys
@@ -15,7 +13,7 @@ def send_receive(command):
         raise ValueError("ERROR: Unexpected characters read. Throwing away " +
                          "\"" + ser.read(1000) + "\"")
 
-    ser.write(command + '\n')
+    ser.write(command + b'\n')
     time.sleep(0.02)
     received = ser.readline()
 
@@ -30,9 +28,9 @@ def send_receive(command):
         raise ValueError("ERROR: No response received for command \"" +
                          command + "\"")
 
-    received = received.replace('\n', '')
-    received = received.replace('\r', '')
-    return received
+    received = received.replace(b'\n', b'')
+    received = received.replace(b'\r', b'')
+    return received.decode("utf-8")
 
 #send_receive('*IDN?')
 #send_receive('SYST:BATT?')
@@ -56,7 +54,7 @@ if __name__ == "__main__":
     ser = serial.Serial(serial_devname, timeout=0.5)
 
     try:
-        idn = send_receive('*IDN?')
+        idn = send_receive(b'*IDN?')
         print('# Measurement source: %s\n' % idn)
     except ValueError as e:
         print(e.args, file=sys.stderr)
@@ -73,10 +71,10 @@ if __name__ == "__main__":
         now = datetime.now()
 
         try:
-            reading1 = send_receive('READ?')
-            reading2 = send_receive('FETC? @2')
-            conf1 = send_receive('CONF?')
-            conf2 = send_receive('CONF? @2')
+            reading1 = send_receive(b'READ?')
+            reading2 = send_receive(b'FETC? @2')
+            conf1 = send_receive(b'CONF?')
+            conf2 = send_receive(b'CONF? @2')
 
             msecs = now.microsecond / 1000
             timestring = now.strftime("%Y-%m-%d %H:%M:%S") + '.%03d' % (msecs)
